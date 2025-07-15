@@ -1,56 +1,36 @@
 import {doRequestToServer, PACKAGE_ENDPOINTS} from "../api";
-import {DEFAULT_DEPARTURE, DEFAULT_DEPARTURE_FRIENDLY, DEFAULT_DEPARTURE_ID} from "../data";
 import {filterUniqueMatchingHotels} from "./filterUniqueMatchingHotels";
 
-/**
- * Преобразует данные локации в стандартизированный формат
- */
-function mapLocation(item) {
-  return {
-    id: item.id,
-    name: item.name,
-    friendlyUrl: item.friendlyUrl,
-    type: item.type,
-    parent: item.parent,
-    children: item.children || [],
-  };
-}
 
 /**
  * Получает arrival локации для PackageTour на основе названий отелей
  * с финальной фильтрацией по запрашиваемым именам
  *
- * @param {string[]} hotelNames
+ * @param {string} hotelName
  * @returns {Promise<Array>}
  */
-export async function fetchPackageArrivalLocations(hotelNames) {
-  if (!hotelNames.length) {
-    throw new Error("Hotel names array cannot be empty");
-  }
+export async function fetchPackageArrivalLocations(hotelName) {
+  const response = await doRequestToServer(
+    PACKAGE_ENDPOINTS.LIST_ARRIVAL_LOCATIONS,
+    {
+      departureLocations: [{
+        id: '2671-5',
+        name: 'Москва',
+        type: 5,
+        friendlyUrl: 'moskva'
+      }],
+      text: hotelName
+    },
+    "POST"
+  )
 
-
-  const requests = hotelNames.map(name => {
-      return doRequestToServer(
-        PACKAGE_ENDPOINTS.LIST_ARRIVAL_LOCATIONS,
-        {
-          departureLocations: [{
-            id: DEFAULT_DEPARTURE_ID,
-            name: DEFAULT_DEPARTURE,
-            type: 5,
-            friendlyUrl: DEFAULT_DEPARTURE_FRIENDLY
-          }],
-          text: name
-        },
-        "POST"
-      )
-    }
-  );
-
-  const responses = await Promise.all(requests);
-
-  // фильтруем строго по нужным названиям отелей и убираем дубли
-  const filtered = filterUniqueMatchingHotels(responses, hotelNames);
-
-  // и приводим к финальному виду
-  return filtered.map(mapLocation);
+  const filtered = filterUniqueMatchingHotels(response, hotelName);
+  return {
+    id: filtered[0].id,
+    name: filtered[0].name,
+    friendlyUrl: filtered[0].friendlyUrl,
+    type: filtered[0].type,
+    parent: filtered[0].parent,
+    children: filtered[0].children || [],
+  };
 }

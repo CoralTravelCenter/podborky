@@ -1,16 +1,15 @@
 import {doRequestToServer, PACKAGE_ENDPOINTS} from "../api";
 
-export async function fetchPackagePriceSearchEncrypt(arrivalLocations, targetFlightDate, targetNights) {
-  console.log(targetFlightDate)
-  console.log(targetNights.value)
+export async function fetchPackagePriceSearchEncrypt(arrivalLocation, targetDate, targetNights) {
+  
   const body = {
     searchSource: 0,
     searchCriterias: {
       flightType: 2,
       reservationType: 1,
-      beginDates: [targetFlightDate.date],
+      beginDates: [targetDate],
       datePickerMode: 0,
-      nights: [{value: targetNights.value}],
+      nights: [{value: targetNights}],
       roomCriterias: [
         {
           passengers: [
@@ -27,7 +26,7 @@ export async function fetchPackagePriceSearchEncrypt(arrivalLocations, targetFli
           friendlyUrl: "moskva"
         }
       ],
-      arrivalLocations: arrivalLocations,
+      arrivalLocations: [arrivalLocation],
       paging: {
         pageNumber: 1,
         pageSize: 20,
@@ -36,21 +35,9 @@ export async function fetchPackagePriceSearchEncrypt(arrivalLocations, targetFli
       imageSizes: [0],
       categories: [],
       additionalFilters: [],
-      advancedParameters: {
-        selectedFlightNight: targetNights.value,
-        selectedNight: targetNights.value,
-        selectedBeginDate: targetFlightDate.date,
-        departureLocation: {
-          id: "2671-5",
-          name: "Москва",
-          type: 5,
-          friendlyUrl: "moskva"
-        }
-      }
     },
   };
-
-  return await doRequestToServer(
+  return doRequestToServer(
     PACKAGE_ENDPOINTS.PRICE_SEARCH_LIST,
     body,
     "POST"

@@ -1,9 +1,4 @@
-export function findExactCharterDates(preferredDates, flights) {
-  return preferredDates.reduce((acc, date) => {
-    const exactCharter = flights.find(
-      flight => flight.date === date && flight.flightType === 2
-    );
-    if (exactCharter) acc.push(exactCharter.date);
-    return acc;
-  }, [])
+export function findFlightByExactDate(preferredDate, flights) {
+  console.log(preferredDate, flights)
+  return flights.find(flight => flight.date === preferredDate) || null;
 }

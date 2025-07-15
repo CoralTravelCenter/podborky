@@ -1,13 +1,11 @@
 import {doRequestToServer, PACKAGE_ENDPOINTS} from "../api";
 
-export function fetchPackageAvailableNights(arrivalLocations, availableDatesResponse) {
-  if (!arrivalLocations.length) {
-    throw new Error("Arrival locations array cannot be empty");
-  }
-
+export function fetchPackageAvailableNights(arrivalLocation, availableDate) {
   const body = {
-    flightType: availableDatesResponse.flightType,
-    beginDates: [availableDatesResponse.date],
+    flightType: 2,
+    beginDates: [
+      availableDate
+    ],
     calculateAvailableNightRanges: true,
     departureLocations: [{
       id: "2671-5",
@@ -15,7 +13,7 @@ export function fetchPackageAvailableNights(arrivalLocations, availableDatesResp
       type: 5,
       friendlyUrl: "moskva"
     }],
-    arrivalLocations
+    arrivalLocations: [arrivalLocation]
   };
 
   return doRequestToServer(

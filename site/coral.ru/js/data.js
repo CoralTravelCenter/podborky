@@ -2,10 +2,19 @@ export const toursByCountry = [
   {
     country: "Турция",
     hotels: [
-      {hotel: "ULUSOY KEMER HOLIDAY CLUB", dates: ["15.08", "11.09"]},
-      {hotel: "SEVEN SEAS HOTEL LIFE", dates: ["15.08", "11.09"]},
-      {hotel: "TRANSATLANTIK HOTEL& SPA", dates: ["19.09", "01.10"]},
-      {hotel: "SIMENA COMFORT HOTEL", dates: ["17.09", "01.10"]},
+      {
+        hotel: "ULUSOY KEMER HOLIDAY CLUB",
+        dates: ["2025-08-15", "2025-09-11"],
+        rating: 5,
+        location: 'Турция, Кемер, Гейнюк',
+        meal: 'Standard Room, Ультра все включено',
+        nights: 7,
+        departure: 'из Москвы',
+        package: 'Перелет включен'
+      },
+      {hotel: "SEVEN SEAS HOTEL LIFE", dates: ["2025-08-15", "2025-09-11"]},
+      {hotel: "TRANSATLANTIK HOTEL& SPA", dates: ["2025-09-19", "2025-10-01"]},
+      {hotel: "SIMENA COMFORT HOTEL", dates: ["2025-09-17", "2025-10-01"]},
     ]
   },
   {
@@ -20,27 +29,19 @@ export const toursByCountry = [
   {
     country: "Египет",
     hotels: [
-      {hotel: "ISLAND VIEW", dates: ["11.09", "01.10"]},
-      {hotel: "RIXOS PREMIUM SEAGATE", dates: ["11.09", "01.10"]},
-      {hotel: "CONCORDE EL SALAM SPORT AREA", dates: ["08.09", "01.10"]},
-      {hotel: "BARON RESORT SHARM EL SHEIKH", dates: ["08.09", "01.10"]},
+      {hotel: "ISLAND VIEW", dates: ["2025-09-11", "2025-10-01"]},
+      {hotel: "RIXOS PREMIUM SEAGATE", dates: ["2025-09-11", "2025-10-01"]},
+      {hotel: "CONCORDE EL SALAM SPORT AREA", dates: ["2025-09-08", "2025-10-01"]},
+      {hotel: "BARON RESORT SHARM EL SHEIKH", dates: ["2025-09-08", "2025-10-01"]},
     ]
   },
   {
     country: "Мальдивы",
     hotels: [
-      {hotel: "MALAHINI KUDA BANDOS", dates: ["14.08", "12.09"]},
-      {hotel: "VILLA NAUTICA, PARADISE ISLAND", dates: ["14.08", "12.09"]},
-      {hotel: "KURUMBA MALDIVES", dates: ["29.08", "08.09"]},
-      {hotel: "VELASSARU MALDIVES", dates: ["29.08", "08.09"]},
+      {hotel: "MALAHINI KUDA BANDOS", dates: ["2025-08-14", "2025-09-12"]},
+      {hotel: "VILLA NAUTICA, PARADISE ISLAND", dates: ["2025-08-14", "2025-09-12"]},
+      {hotel: "KURUMBA MALDIVES", dates: ["2025-08-29", "2025-09-08"]},
+      {hotel: "VELASSARU MALDIVES", dates: ["2025-08-29", "2025-09-08"]},
     ]
   }
 ];
-
-export const DEFAULT_DEPARTURE = 'Москва';
-export const DEFAULT_DEPARTURE_ID = '2671-5';
-export const DEFAULT_DEPARTURE_FRIENDLY = 'moskva';
-export const LOCATION_TYPES = {
-  COUNTRY: 0,
-  HOTEL: 7,
-}
