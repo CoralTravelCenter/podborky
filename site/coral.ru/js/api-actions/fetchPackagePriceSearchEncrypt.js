@@ -32,7 +32,7 @@ export async function fetchPackagePriceSearchEncrypt(arrivalLocation, targetDate
         pageSize: 20,
         sortType: 0
       },
-      imageSizes: [0],
+      imageSizes: [4],
       categories: [],
       additionalFilters: [],
     },

@@ -41,7 +41,8 @@ async function processHotelData(hotelBlock, idx) {
   }
 
   for (const el of hotelBlock.hotels) {
-    el.price = []; // инициализируем массив для цен
+    el.price = [];
+    el.visual = null;
     
     const arrivalLocation = await fetchPackageArrivalLocations(el.hotel);
     const arrivalDates = await fetchPackageAvailableDates(arrivalLocation);
@@ -59,13 +60,17 @@ async function processHotelData(hotelBlock, idx) {
         targetDate.date,
         targetNights.value
       );
-
+      console.log(productData)
       const priceAmount = productData?.result?.products?.[0]?.offers?.[0]?.price?.amount;
+      const visual = productData?.result.products[0].hotel.images[4].sizes[0].url
       if (priceAmount) {
         el.price.push({
           date: targetDate.date,
           amount: priceAmount
         });
+      }
+      if (visual) {
+        el.visual = visual;
       }
     }
   }
@@ -76,7 +81,6 @@ async function processHotelData(hotelBlock, idx) {
   renderHotelCards(hotelBlock.hotels, idx + 1);
   return hotelBlock.hotels;
 }
-
 
 async function handleTabClick(button, idx) {
   const tabId = button.getAttribute("data-tab");
