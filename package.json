@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "proxy": "lcp --proxyUrl https://b2capi.coral.ru --port 8010"
+    "proxy": "lcp --proxyUrl https://b2capi.coral.ru --port 8010",
+    "dev": "b2c-landing-vite dev site/coral.ru/landing.page.json"
   },
   "devDependencies": {
     "sass": "^1.89.2"

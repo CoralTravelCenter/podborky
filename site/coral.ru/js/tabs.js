@@ -1,12 +1,8 @@
 import {hostReactAppReady} from "../../common/js/usefuls.js";
-import {toursByCountry} from "./data";
-import {fetchPackageArrivalLocations} from "./api-actions/fetchPackageArrivalLocations";
-import {fetchPackageAvailableDates} from "./api-actions/fetchPackageAvailableDates";
-import {findFlightByExactDate} from "./api-actions/findExactCharterDates";
-import {fetchPackageAvailableNights} from "./api-actions/fetchPackageAvailableNights";
-import {findObjectByValue} from "./api-actions/findObjectByValue";
-import {fetchPackagePriceSearchEncrypt} from "./api-actions/fetchPackagePriceSearchEncrypt";
-import {renderHotelCards} from "./render-actions/generateCard";
+import {removeSkeletons} from "./render-actions/removeSkeletons";
+import {processHotelData} from "./api-actions/processHotelData";
+
+const toursByCountry = window._toursByCountry
 
 function createButtonElement(country, idx) {
   const tabButton = document.createElement("button");
@@ -25,69 +21,24 @@ function renderButtonElements(container) {
 function setActiveTab(button, tabId) {
   document.querySelectorAll(".tab-buttons button").forEach(btn => btn.classList.remove("js-active"));
   document.querySelectorAll(".tab-block").forEach(content => content.classList.remove("js-active"));
-
   button.classList.add("js-active");
   document.querySelector(`.tab-block[data-content="${tabId}"]`).classList.add("js-active");
-}
-
-async function processHotelData(hotelBlock, idx) {
-  const cacheKey = `hotelData_${idx}`;
-  const cached = sessionStorage.getItem(cacheKey);
-
-  if (cached) {
-    const parsedHotels = JSON.parse(cached);
-    renderHotelCards(parsedHotels, idx + 1);
-    return parsedHotels;
-  }
-
-  for (const el of hotelBlock.hotels) {
-    el.price = [];
-    el.visual = null;
-    
-    const arrivalLocation = await fetchPackageArrivalLocations(el.hotel);
-    const arrivalDates = await fetchPackageAvailableDates(arrivalLocation);
-
-    for (const date of el.dates) {
-      const targetDate = findFlightByExactDate(date, arrivalDates.result.dates);
-      if (!targetDate) continue;
-
-      const availableNights = await fetchPackageAvailableNights(arrivalLocation, targetDate.date);
-      const targetNights = findObjectByValue(availableNights.result.nights, "value", 7);
-      if (!targetNights) continue;
-
-      const productData = await fetchPackagePriceSearchEncrypt(
-        arrivalLocation,
-        targetDate.date,
-        targetNights.value
-      );
-      console.log(productData)
-      const priceAmount = productData?.result?.products?.[0]?.offers?.[0]?.price?.amount;
-      const visual = productData?.result.products[0].hotel.images[4].sizes[0].url
-      if (priceAmount) {
-        el.price.push({
-          date: targetDate.date,
-          amount: priceAmount
-        });
-      }
-      if (visual) {
-        el.visual = visual;
-      }
-    }
-  }
-
-  // Кладём в sessionStorage только массив отелей
-  sessionStorage.setItem(cacheKey, JSON.stringify(hotelBlock.hotels));
-
-  renderHotelCards(hotelBlock.hotels, idx + 1);
-  return hotelBlock.hotels;
+  document.querySelector('[data-active-tab]').setAttribute("data-active-tab", toursByCountry[tabId - 1].country);
 }
 
 async function handleTabClick(button, idx) {
   const tabId = button.getAttribute("data-tab");
   setActiveTab(button, tabId);
-
+  ym(96674199,'reachGoal', 'country-filter', {country: toursByCountry[tabId].country});
   const hotelBlock = toursByCountry[idx];
-  await processHotelData(hotelBlock, idx);
+  const skeletons = document.querySelectorAll(`[data-content="${idx + 1}"] .skeleton`);
+  try {
+    await processHotelData(hotelBlock, idx);
+  } catch (error) {
+    console.error("Ошибка загрузки данных", error);
+  } finally {
+    removeSkeletons(skeletons)
+  }
 }
 
 (async () => {
@@ -101,10 +52,18 @@ async function handleTabClick(button, idx) {
   // Автозагрузка первой вкладки
   const defaultIdx = 0;
   const defaultButton = buttons[defaultIdx];
+  const skeletons = document.querySelectorAll(`[data-content="${defaultIdx + 1}"] .skeleton`);
   if (defaultButton) {
     const tabId = defaultButton.getAttribute("data-tab");
     setActiveTab(defaultButton, tabId);
-    await processHotelData(toursByCountry[defaultIdx], defaultIdx);
+    try {
+      await processHotelData(toursByCountry[defaultIdx], defaultIdx);
+    } catch (error) {
+      console.error("Ошибка загрузки данных", error);
+    } finally {
+      ym(96674199,'reachGoal', 'country-filter', {country: toursByCountry[defaultIdx].country});
+      removeSkeletons(skeletons)
+    }
   }
 
   // Обработчики кликов
