@@ -1,10 +1,7 @@
-export function removeSkeletons(skeletons) {
-  setTimeout(()=> {
-    skeletons.forEach((skeleton) => {
-      skeleton.classList.add("off");
-      if (!skeleton.closest('.skeleton-container').classList.contains("off")) {
-        skeleton.closest('.skeleton-container').classList.add("off");
-      }
-    })
-  }, 200)
+export function removeSkeletonByIndex(index, containerId) {
+  const container = document.querySelector(`.tab-block[data-content="${containerId}"] .skeleton-container`);
+  if (!container) return;
+
+  const skeleton = container.querySelector(`.skeleton[data-index="${index}"]`);
+  if (skeleton) skeleton.remove();
 }

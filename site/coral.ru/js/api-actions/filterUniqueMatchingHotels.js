@@ -1,19 +1,27 @@
 /**
  * Фильтрует локации по запрашиваемым названиям отелей, убирая дубли
  */
-export function filterUniqueMatchingHotels(response, requestedName) {
-  if (!response?.result?.locations?.length || !requestedName?.trim()) return [];
+export function  filterUniqueMatchingHotels(
+  responses,
+  requestedNames
+) {
+  if (!responses?.length || !requestedNames?.length) return [];
 
-  const normalizedRequested = requestedName.trim().toUpperCase();
+  const requestedSet = new Set(
+    requestedNames.map(name => name.trim().toUpperCase()).filter(Boolean)
+  );
+  if (!requestedSet.size) return [];
 
   const uniqueMap = new Map();
 
-  for (const location of response.result.locations) {
-    const normalizedName = location?.name?.trim().toUpperCase();
-    if (normalizedName === normalizedRequested) {
-      uniqueMap.set(location.id, location);
+  for (const response of responses) {
+    for (const location of response?.result?.locations || []) {
+      const normalizedName = location.name.trim().toUpperCase();
+      if (requestedSet.has(normalizedName)) {
+        uniqueMap.set(location.id, location);
+      }
     }
   }
 
-  return Array.from(uniqueMap.values());
+  return [...uniqueMap.values()];
 }

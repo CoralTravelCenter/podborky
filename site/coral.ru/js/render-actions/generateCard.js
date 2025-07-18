@@ -1,13 +1,12 @@
-export function renderHotelCards(results, tabId) {
+export function renderSingleHotelCard(item, tabId) {
   const container = document.querySelector(`.tab-block[data-content="${tabId}"] .cards-container`);
   if (!container) return;
 
-  container.innerHTML = ""; // очищаем старые карточки
+  if (container.querySelector(`[data-hotel="${item.hotel}"]`)) return; // 🔐 анти-дубль
 
-  results.forEach(item => {
-    const card = createHotelCard(item);
-    container.append(card);
-  });
+  const card = createHotelCard(item);
+  card.setAttribute("data-hotel", item.hotel);
+  container.appendChild(card);
 }
 
 function createHotelCard(item) {

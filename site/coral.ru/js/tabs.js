@@ -1,6 +1,7 @@
 import {hostReactAppReady} from "../../common/js/usefuls.js";
-import {removeSkeletons} from "./render-actions/removeSkeletons";
 import {processHotelData} from "./api-actions/processHotelData";
+import {removeSkeletonByIndex} from "./render-actions/removeSkeletons";
+import {renderSkeletons} from "./render-actions/renderSkeletons";
 
 const toursByCountry = window._toursByCountry
 
@@ -29,15 +30,16 @@ function setActiveTab(button, tabId) {
 async function handleTabClick(button, idx) {
   const tabId = button.getAttribute("data-tab");
   setActiveTab(button, tabId);
-  ym(96674199,'reachGoal', 'country-filter', {country: toursByCountry[tabId].country});
+  ym(96674199,'reachGoal', 'country-filter', {country: toursByCountry[tabId - 1].country});
   const hotelBlock = toursByCountry[idx];
   const skeletons = document.querySelectorAll(`[data-content="${idx + 1}"] .skeleton`);
   try {
+    renderSkeletons(hotelBlock, idx + 1);
     await processHotelData(hotelBlock, idx);
   } catch (error) {
     console.error("Ошибка загрузки данных", error);
   } finally {
-    removeSkeletons(skeletons)
+    // removeSkeletonByIndex(skeletons)
   }
 }
 
@@ -62,7 +64,7 @@ async function handleTabClick(button, idx) {
       console.error("Ошибка загрузки данных", error);
     } finally {
       ym(96674199,'reachGoal', 'country-filter', {country: toursByCountry[defaultIdx].country});
-      removeSkeletons(skeletons)
+      // removeSkeletonByIndex(skeletons)
     }
   }
 

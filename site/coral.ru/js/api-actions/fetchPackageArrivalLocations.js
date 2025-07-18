@@ -1,36 +1,43 @@
 import {doRequestToServer, PACKAGE_ENDPOINTS} from "../api";
 import {filterUniqueMatchingHotels} from "./filterUniqueMatchingHotels";
 
+function mapCountryLocation(item) {
+  return {
+    id: item.id,
+    name: item.name,
+    friendlyUrl: item.friendlyUrl,
+    type: item.type,
+    parent: item.parent,
+    children: item.children || [],
+  };
+}
 
 /**
  * Получает arrival локации для PackageTour на основе названий отелей
  * с финальной фильтрацией по запрашиваемым именам
  *
- * @param {string} hotelName
+ * @param {string[]} hotelsNames
  * @returns {Promise<Array>}
  */
-export async function fetchPackageArrivalLocations(hotelName) {
-  const response = await doRequestToServer(
-    PACKAGE_ENDPOINTS.LIST_ARRIVAL_LOCATIONS,
-    {
-      departureLocations: [{
-        id: '2671-5',
-        name: 'Москва',
-        type: 5,
-        friendlyUrl: 'moskva'
-      }],
-      text: hotelName
-    },
-    "POST"
-  )
+export async function fetchPackageArrivalLocations(hotelsNames) {
+  const processedLocations= [];
 
-  const filtered = filterUniqueMatchingHotels(response, hotelName);
-  return {
-    id: filtered[0].id,
-    name: filtered[0].name,
-    friendlyUrl: filtered[0].friendlyUrl,
-    type: filtered[0].type,
-    parent: filtered[0].parent,
-    children: filtered[0].children || [],
-  };
+  const responses = await Promise.all(hotelsNames.map(el => {
+    return doRequestToServer(
+      PACKAGE_ENDPOINTS.LIST_ARRIVAL_LOCATIONS,
+      {
+        departureLocations: [{
+          id: '2671-5',
+          name: 'Москва',
+          type: 5,
+          friendlyUrl: 'moskva'
+        }],
+        text: el
+      },
+      "POST"
+    )
+  }))
+
+  const uniqHotels = filterUniqueMatchingHotels(responses, hotelsNames)
+  return uniqHotels.map(el => mapCountryLocation(el))
 }
