@@ -5,30 +5,34 @@ import {fetchPackageAvailableNights} from "./fetchPackageAvailableNights";
 import {findObjectByValue} from "./findObjectByValue";
 import {fetchPackagePriceSearchEncrypt} from "./fetchPackagePriceSearchEncrypt";
 import {findFlightByExactDate} from "./findExactCharterDates";
-import {removeSkeletonByIndex} from "../render-actions/removeSkeletons"; // примеры импорта
 
 function getArrivalLocations(arrivalLocations, el) {
   return arrivalLocations.find(arrivalLocation => arrivalLocation.name === el.hotel);
 }
 
 export async function processHotelData(hotelBlock, idx) {
+  const containerId = idx + 1;
   const cacheKey = `hotelData_${idx}`;
   const cached = sessionStorage.getItem(cacheKey);
 
-  if (cached) {
-    const parsedHotels = JSON.parse(cached);
-
-    const container = document.querySelector(`.tab-block[data-content="${idx + 1}"] .cards-container`);
-    if (container) container.innerHTML = ""; // 💥 защита от дублирования
-
-    parsedHotels.forEach((hotel, i) => {
-      removeSkeletonByIndex(i, idx + 1);
-      renderSingleHotelCard(hotel, idx + 1);
-    });
-
-    return parsedHotels;
+  const loadingBox = document.querySelector(`.tab-block[data-content="${containerId}"] .loading-box`);
+  if (loadingBox) {
+    loadingBox.style.display = "block";
+    loadingBox.dataset.hidden = ""; // сбрасываем на всякий случай
   }
 
+  const container = document.querySelector(`.tab-block[data-content="${containerId}"] .cards-container`);
+  if (container) container.innerHTML = "";
+
+  if (cached) {
+    const parsedHotels = JSON.parse(cached);
+    parsedHotels.forEach((hotel, i) => {
+      renderSingleHotelCard(hotel, containerId);
+    });
+
+    if (loadingBox) loadingBox.style.display = "none";
+    return parsedHotels;
+  }
 
   const hotelsNames = hotelBlock.hotels.map(el => el.hotel);
   const arrivalLocations = await fetchPackageArrivalLocations(hotelsNames);
@@ -73,11 +77,16 @@ export async function processHotelData(hotelBlock, idx) {
     }
 
     processedHotels.push(el);
+    renderSingleHotelCard(el, containerId);
 
-    // 🧼 Удаляем соответствующий скелет и рендерим карточку
-    removeSkeletonByIndex(i, idx + 1);
-    renderSingleHotelCard(el, idx + 1);
+    // 🟢 Скрыть лоадер после первой карточки
+    if (loadingBox && !loadingBox.dataset.hidden) {
+      loadingBox.style.display = "none";
+      loadingBox.dataset.hidden = "true";
+    }
   }
+
+  if (loadingBox) delete loadingBox.dataset.hidden;
 
   sessionStorage.setItem(cacheKey, JSON.stringify(processedHotels));
   return processedHotels;
